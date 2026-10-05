@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const app = express();
-const PORT = 3210;
+const PORT = process.env.PORT || 3210;
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -48,6 +48,6 @@ app.get('/scan', async (req, res) => {
   }
 });
 
-app.listen(PORT, '127.0.0.1', () =>
-  console.log(`API running at http://127.0.0.1:${PORT}`)
+app.listen(PORT, '0.0.0.0', () =>
+  console.log(`API running on port ${PORT}`)
 );
