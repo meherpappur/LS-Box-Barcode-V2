@@ -1,35 +1,44 @@
-const express = require('express');
-const { PrismaClient } = require('@prisma/client');
-
+const express = require("express");
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3210;
+const cors = require("cors");
 
+app.use(
+  cors({
+    origin: ["https://vapekingsuk.retail.lightspeed.app"],
+  }),
+);
+
+app.use(express.json());
 // Health check
-app.get('/health', async (req, res) => {
+app.get("/health", async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ ok: true, db: 'connected' });
+    res.json({ ok: true, db: "connected" });
   } catch (err) {
-    res.status(500).json({ ok: false, db: 'error', error: err.message });
+    res.status(500).json({ ok: false, db: "error", error: err.message });
   }
 });
 
 //test
-app.get('/scan', async (req, res) => {
+app.get("/scan", async (req, res) => {
   try {
-    const barcode = String(req.query.barcode || '').trim();
+    const barcode = String(req.query.barcode || "").trim();
 
     if (!barcode) {
-      return res.status(400).json({ ok: false, error: 'barcode is required' });
+      return res.status(400).json({ ok: false, error: "barcode is required" });
     }
 
     const row = await prisma.product.findUnique({
-      where: { boxBarcode: barcode }
+      where: { boxBarcode: barcode },
     });
 
     if (!row) {
-      return res.status(404).json({ ok: false, error: `Barcode not found: ${barcode}` });
+      return res
+        .status(404)
+        .json({ ok: false, error: `Barcode not found: ${barcode}` });
     }
 
     res.json({
@@ -40,7 +49,7 @@ app.get('/scan', async (req, res) => {
       sku: row.sku,
       name: row.productTitle,
       quantity: row.qty,
-      type: 'box'
+      type: "box",
     });
   } catch (err) {
     console.error(err);
@@ -48,6 +57,4 @@ app.get('/scan', async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () =>
-  console.log(`API running on port ${PORT}`)
-);
+app.listen(PORT, "0.0.0.0", () => console.log(`API running on port ${PORT}`));
