@@ -15,7 +15,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
-
+//test
 app.get('/scan', async (req, res) => {
   try {
     const barcode = String(req.query.barcode || '').trim();
